@@ -1,3 +1,13 @@
+
+var permittedCommentChars = " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,=_-*/\\:";
+
+function toTitleCase(str) {
+   // function to reformat a string to 'title case'
+   return str.replace(/\w\S*/g, function (txt) {             // /\w\S*/g    keep that format, astyle will put spaces in it
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+   });
+}
+
 obversion = 'V1.0.35';
 description = "OpenBuilds CNC : GRBL/BlackBox";
 longDescription = description + " : Post" + obversion;
@@ -6,16 +16,12 @@ vendor = "OpenBuilds";
 vendorUrl = "https://openbuilds.com";
 model = "GRBL";
 legal = "Copyright Openbuilds 2023";
-certificationLevel = 2;
-minimumRevision = 45892;
 
 debugMode = false;
 
 extension = "gcode";                            // file extension of the gcode file
 setCodePage("ascii");                           // character set of the gcode file
-//setEOL(CRLF);                                 // end-of-line type : use CRLF for windows
 
-var permittedCommentChars = " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,=_-*/\\:";
 capabilities = CAPABILITY_MILLING | CAPABILITY_JET;      // intended for a CNC, so Milling, and waterjet/plasma/laser
 tolerance = spatial(0.01, MM);
 minimumChordLength = spatial(0.25, MM);
@@ -248,12 +254,6 @@ var coolantIsOn = 0;    // set when coolant is used to we can do intelligent tur
 var currentworkOffset = 54; // the current WCS in use, so we can retract Z between sections if needed
 var clnt = '';          // coolant code to add to spindle line
 
-function toTitleCase(str) {
-   // function to reformat a string to 'title case'
-   return str.replace(/\w\S*/g, function (txt) {             // /\w\S*/g    keep that format, astyle will put spaces in it
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-   });
-}
 
 function rpm2dial(rpm, op) {
    // translates an RPM for the spindle into a dial value, eg. for the Makita RT0700 and Dewalt 611 routers
