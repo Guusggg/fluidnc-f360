@@ -1,31 +1,25 @@
-# OpenBuilds Fusion360 Postprocessor
+# PRITEC Fusion360 post-processor
 
-Creates .nc files optimized for GRBL based Openbuilds-style machines.
-Supports router and laser operations.
+# How to use torch height probing with plasma cutting in Fusion360
 
-V1.0.31
-1. improved laser and plasma paths, esp when 'stay down' is selected
-1. laser pierce delay option when through cutting is selected
-1. Select 'LASER: use Z motions at start and end' to have full Z movement with laser and plasma cuts
+## Fusion 360 settings
+* Select a plasma tool and adjust the kerf width to suite your machine.
+* Make sure that the stock is the same thickness as the model, make sure no stock is added on top of the material.
+* On all operations select Top Height as 'Stock Top' and enter the cutting head height for normal cutting (like 0.8mm).
+* On all operations set the Pierce Clearance under Linking, must be greater than the cutting height (like 1.5mm).
+* Under Passes | Compensation Type select 'In computer'.
 
-V1.0.25 supports plasma torch touchoff probing.
-* Read the [instructions](https://github.com/OpenBuilds/OpenBuilds-Fusion360-Postprocessor/blob/master/README-plasma.md)
+## Post processor options:
+* Set 'Use Z touchoff probe routine' to Yes
+* Set 'Plasma touch probe offset' to the difference between where the probe touches the material and where the probe triggers.
+  * This is always in millimeters.
+  * So if your probe triggers 5.3mm after the probe touches the material, enter 5.3, (always a positive number).
+* Set 'Spindle on/off/ delay' to the desired Pierce delay in seconds.
 
-V1.0.21 now supports plasma cutting
+# Credits
 
-V1.0.20 supports the Personal license restrictions and ultra long comments
+_Based on the fantastic work of [OpenBuilds-Fusion360-Postprocessor](https://github.com/OpenBuilds/OpenBuilds-Fusion360-Postprocessor)._
 
-V1.0.18 now includes laser operations. 
-1. Laser mode supports lasers with and without Z motions.
-1. It is left to the operator to correctly set GRBL parameter $32 as needed on a machine that combines a router and laser head.
-1. The laser is regarded as an extra tool so when posting multiple operations the
-   router code and laser code will be in seperate output .gcode files 
-   (exactly as for multiple tool outputs, each tool in its own file).
-1. Laser power is scaled between 0 and 1000 (GRBL spindle RPM defaults).  
-   You can edit this post to cater for non-default settings. Refer to the 'calcPower' function.
-
-### Credits ###
-
-1. @swarfer David the Swarfer (lead maintainer)
+1. @swarfer - David the Swarfer (lead maintainer of OpenBuilds-Fusion360-Postprocessor)
 1. @sharmstr - multifile output
 1. @Strooom - Initial work
