@@ -1,65 +1,58 @@
 /*
-   Custom Post-Processor for GRBL based Openbuilds-style CNC machines, router and laser-cutting
-   Made possible by
-   Swarfer  https://github.com/swarfer/GRBL-Post-Processor
-   Sharmstr https://github.com/sharmstr/GRBL-Post-Processor
-   Strooom  https://github.com/Strooom/GRBL-Post-Processor
-   This post-Processor should work on GRBL-based machines
+Custom Post-Processor for GRBL based Openbuilds-style CNC machines, router and laser-cutting
+Made possible by
+Swarfer  https://github.com/swarfer/GRBL-Post-Processor
+Sharmstr https://github.com/sharmstr/GRBL-Post-Processor
+Strooom  https://github.com/Strooom/GRBL-Post-Processor
+This post-Processor should work on GRBL-based machines
 
-   Changelog
-   22/Aug/2016 - V01     : Initial version (Stroom)
-   23/Aug/2016 - V02     : Added Machining Time to Operations overview at file header (Stroom)
-   24/Aug/2016 - V03     : Added extra user properties - further cleanup of unused variables (Stroom)
-   07/Sep/2016 - V04     : Added support for INCHES. Added a safe retract at beginning of first section (Stroom)
-   11/Oct/2016 - V05     : Update (Stroom)
-   30/Jan/2017 - V06     : Modified capabilities to also allow waterjet, laser-cutting (Stroom)
-   28 Jan 2018 - V07     : Fix arc errors and add gotoMCSatend option (Swarfer)
-   16 Feb 2019 - V08     : Ensure X, Y, Z  output when linear differences are very small (Swarfer)
-   27 Feb 2019 - V09     : Correct way to force word output for XYZIJK, see 'force:true' in CreateVariable (Swarfer)
-   27 Feb 2018 - V10     : Added user properties for router type. Added rounding of dial settings to 1 decimal (Sharmstr)
-   16 Mar 2019 - V11     : Added rounding of tool length to 2 decimals.  Added check for machine config in setup (Sharmstr)
+Changelog
+22/Aug/2016 - V01     : Initial version (Stroom)
+23/Aug/2016 - V02     : Added Machining Time to Operations overview at file header (Stroom)
+24/Aug/2016 - V03     : Added extra user properties - further cleanup of unused variables (Stroom)
+07/Sep/2016 - V04     : Added support for INCHES. Added a safe retract at beginning of first section (Stroom)
+11/Oct/2016 - V05     : Update (Stroom)
+30/Jan/2017 - V06     : Modified capabilities to also allow waterjet, laser-cutting (Stroom)
+28 Jan 2018 - V07     : Fix arc errors and add gotoMCSatend option (Swarfer)
+16 Feb 2019 - V08     : Ensure X, Y, Z  output when linear differences are very small (Swarfer)
+27 Feb 2019 - V09     : Correct way to force word output for XYZIJK, see 'force:true' in CreateVariable (Swarfer)
+27 Feb 2018 - V10     : Added user properties for router type. Added rounding of dial settings to 1 decimal (Sharmstr)
+16 Mar 2019 - V11     : Added rounding of tool length to 2 decimals.  Added check for machine config in setup (Sharmstr)
                       : Changed RPM warning so it includes operation. Added multiple .nc file generation for tool changes (Sharmstr)
                       : Added check for duplicate tool numbers with different geometry (Sharmstr)
-   17 Apr 2019 - V12     : Added check for minimum  feed rate.  Added file names to header when multiple are generated  (Sharmstr)
+17 Apr 2019 - V12     : Added check for minimum  feed rate.  Added file names to header when multiple are generated  (Sharmstr)
                       : Added a descriptive title to gotoMCSatend to better explain what it does.
                       : Moved machine vendor, model and control to user properties  (Sharmstr)
-   15 Aug 2019 - V13     : Grouped properties for clarity  (Sharmstr)
-   05 Jun 2020 - V14     : description and comment changes (Swarfer)
-   09 Jun 2020 - V15     : remove limitation to MM units - will produce inch output but user must note that machinehomeX/Y/Z values are always MILLIMETERS (Swarfer)
-   10 Jun 2020 - V1.0.16 : OpenBuilds-Fusion360-Postprocessor, Semantic Versioning, Automatically add router dial if Router type is set (OpenBuilds)
-   11 Jun 2020 - V1.0.17 : Improved the header comments, code formatting, removed all tab chars, fixed multifile name extensions
-   21 Jul 2020 - V1.0.18 : Combined with Laser post - will output laser file as if an extra tool.
-   08 Aug 2020 - V1.0.19 : Fix for spindleondelay missing on subfiles
-   02 Oct 2020 - V1.0.20 : Fix for long comments and new restrictions
-   05 Nov 2020 - V1.0.21 : poweron/off for plasma, coolant can be turned on for laser/plasma too
-   04 Dec 2020 - V1.0.22 : Add Router11 and dial settings
-   16 Jan 2021 - V1.0.23 : Remove end of file marker '%' from end of output, arcs smaller than toolRadius will be linearized
-   25 Jan 2021 - V1.0.24 : Improve coolant codes
-   26 Jan 2021 - V1.0.25 : Plasma pierce height, and probe
-   29 Aug 2021 - V1.0.26 : Regroup properties for display, Z height check options
-   03 Sep 2021 - V1.0.27 : Fix arc ramps not changing Z when they should have
-   12 Nov 2021 - V1.0.28 : Added property group names, fixed default router selection, now uses permittedCommentChars  (sharmstr)
-   24 Nov 2021 - V1.0.28 : Improved coolant selection, tweaked property groups, tweaked G53 generation, links for help in comments.
-   21 Feb 2022 - V1.0.29 : Fix sideeffects of drill operation having rapids even when in noRapid mode by always resetting haveRapid in onSection
-   10 May 2022 - V1.0.30 : Change naming convention for first file in multifile output (Sharmstr)
-   xx Sep 2022 - V1.0.31 : better laser, with pierce option if cutting
-   06 Dec 2022 - V1.0.32 : fix long comments that were getting extra brackets
-   22 Dec 2022 - V1.0.33 : refactored file naming and debugging, indented with astyle
-   10 Mar 2023 - V1.0.34 : move coolant code to the spindle control line to help with restarts
-   26 Mar 2023 - V1.0.35 : plasma pierce height override,  spindle speed change always with an M3, version number display
-   03 Jun 2023 - V1.0.36b: beta of code to recenter arcs with bad radii
+15 Aug 2019 - V13     : Grouped properties for clarity  (Sharmstr)
+05 Jun 2020 - V14     : description and comment changes (Swarfer)
+09 Jun 2020 - V15     : remove limitation to MM units - will produce inch output but user must note that machinehomeX/Y/Z values are always MILLIMETERS (Swarfer)
+10 Jun 2020 - V1.0.16 : OpenBuilds-Fusion360-Postprocessor, Semantic Versioning, Automatically add router dial if Router type is set (OpenBuilds)
+11 Jun 2020 - V1.0.17 : Improved the header comments, code formatting, removed all tab chars, fixed multifile name extensions
+21 Jul 2020 - V1.0.18 : Combined with Laser post - will output laser file as if an extra tool.
+08 Aug 2020 - V1.0.19 : Fix for spindleondelay missing on subfiles
+02 Oct 2020 - V1.0.20 : Fix for long comments and new restrictions
+05 Nov 2020 - V1.0.21 : poweron/off for plasma, coolant can be turned on for laser/plasma too
+04 Dec 2020 - V1.0.22 : Add Router11 and dial settings
+16 Jan 2021 - V1.0.23 : Remove end of file marker '%' from end of output, arcs smaller than toolRadius will be linearized
+25 Jan 2021 - V1.0.24 : Improve coolant codes
+26 Jan 2021 - V1.0.25 : Plasma pierce height, and probe
+29 Aug 2021 - V1.0.26 : Regroup properties for display, Z height check options
+03 Sep 2021 - V1.0.27 : Fix arc ramps not changing Z when they should have
+12 Nov 2021 - V1.0.28 : Added property group names, fixed default router selection, now uses permittedCommentChars  (sharmstr)
+24 Nov 2021 - V1.0.28 : Improved coolant selection, tweaked property groups, tweaked G53 generation, links for help in comments.
+21 Feb 2022 - V1.0.29 : Fix sideeffects of drill operation having rapids even when in noRapid mode by always resetting haveRapid in onSection
+10 May 2022 - V1.0.30 : Change naming convention for first file in multifile output (Sharmstr)
+xx Sep 2022 - V1.0.31 : better laser, with pierce option if cutting
+06 Dec 2022 - V1.0.32 : fix long comments that were getting extra brackets
 */
-obversion = 'V1.0.36.beta';
+obversion = 'V1.0.32';
 description = "OpenBuilds CNC : GRBL/BlackBox";  // cannot have brackets in comments
 longDescription = description + " : Post" + obversion; // adds description to post library dialog box
 vendor = "OpenBuilds";
 vendorUrl = "https://openbuilds.com";
 model = "GRBL";
-legal = "Copyright Openbuilds 2023";
+legal = "";
 certificationLevel = 2;
-minimumRevision = 45892;
-
-debugMode = false;
 
 extension = "gcode";                            // file extension of the gcode file
 setCodePage("ascii");                           // character set of the gcode file
@@ -67,21 +60,20 @@ setCodePage("ascii");                           // character set of the gcode fi
 
 var permittedCommentChars = " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,=_-*/\\:";
 capabilities = CAPABILITY_MILLING | CAPABILITY_JET;      // intended for a CNC, so Milling, and waterjet/plasma/laser
-tolerance = spatial(0.002, MM);
+tolerance = spatial(0.01, MM);
 minimumChordLength = spatial(0.25, MM);
 minimumCircularRadius = spatial(0.125, MM);
 maximumCircularRadius = spatial(1000, MM);
 minimumCircularSweep = toRad(0.1); // was 0.01
 maximumCircularSweep = toRad(180);
 allowHelicalMoves = true;
-allowSpiralMoves = false;
-allowedCircularPlanes = (1 << PLANE_XY) | (1 << PLANE_ZX) | (1 << PLANE_YZ); // only XY, ZX, and YZ planes
+allowedCircularPlanes = (1 << PLANE_XY);// | (1 << PLANE_ZX) | (1 << PLANE_YZ); // only XY, ZX, and YZ planes
 // the above circular plane limitation appears to be a solution to the faulty arcs problem (but is not entirely)
 // an alternative is to set EITHER minimumChordLength OR minimumCircularRadius to a much larger value, like 0.5mm
 
 // user-defined properties : defaults are set, but they can be changed from a dialog box in Fusion when doing a post.
 properties =
-   {
+{
    spindleOnOffDelay: 1.8,        // time (in seconds) the spindle needs to get up to speed or stop, or laser/plasma pierce delay
    spindleTwoDirections : false,  // true : spindle can rotate clockwise and counterclockwise, will send M3 and M4. false : spindle can only go clockwise, will only send M3
    hasCoolant : false,            // true : machine uses the coolant output, M8 M9 will be sent. false : coolant output not connected, so no M8 M9 will be sent
@@ -91,16 +83,14 @@ properties =
    machineHomeX : -10,            // always in millimeters
    machineHomeY : -10,
    gotoMCSatend : false,          // true will do G53 G0 x{machinehomeX} y{machinehomeY}, false will do G0 x{machinehomeX} y{machinehomeY} at end of program
-   PowerVaporise : 5,         // cutting power in percent, to vaporize plastic coatings
-   PowerThrough  : 100,       // for through cutting
-   PowerEtch     : 10,        // for etching the surface
+   PowerVaporise : 5,     // cutting power in percent, to vaporize plastic coatings
+   PowerThrough  : 100,  // for through cutting
+   PowerEtch     : 10,  // for etching the surface
    UseZ : false,           // if true then Z will be moved to 0 at beginning and back to 'retract height' at end
    UsePierce : false,      // if true && islaser && cutting use M3 and honor pierce delays, else use M4
    //plasma stuff
-   plasma_usetouchoff : false,                        // use probe for touchoff if true
-   plasma_touchoffOffset : 5.0,                       // offset from trigger point to real Z0, used in G10 line
-   plasma_pierceHeightoverride: false,                // if true replace all pierce height settings with value below
-   plasma_pierceHeightValue : toPreciseUnit(10, MM),  // not forcing mm, user beware
+   plasma_usetouchoff : false, // use probe for touchoff if true
+   plasma_touchoffOffset : 5.0, // offset from trigger point to real Z0, used in G10 line
 
    linearizeSmallArcs: true,     // arcs with radius < toolRadius have radius errors, linearize instead?
    machineVendor : "OpenBuilds",
@@ -110,178 +100,170 @@ properties =
    checkZ : false,    // true for a PS tool height checkmove at start of every file
    checkFeed : 200    // always MM/min
    //postProcessorDocs : 'https://docs.openbuilds.com/doku.php', // for future use.  link to post processor help docs.  be sure to uncomment comment as well
-   };
+};
 
 // user-defined property definitions - note, do not skip any group numbers
-groupDefinitions =
-   {
-   //postInfo: {title: "OpenBuilds Post Documentation: https://docs.openbuilds.com/doku.php", description: "", order: 0},
-   spindle: {title: "Spindle", description: "Spindle options", order: 1},
-   safety: {title: "Safety", description: "Safety options", order: 2},
-   toolChange: {title: "Tool Changes", description: "Tool change options", order: 3},
-   startEndPos: {title: "Job Start Z and Job End X,Y,Z Coordinates", description: "Set the spindle start and end position", order: 4},
-   arcs: {title: "Arcs", description: "Arc options", order: 5},
-   laserPlasma: {title: "Laser / Plasma", description: "Laser / Plasma options", order: 6},
-   machine: {title: "Machine", description: "Machine options", order: 7}
-   };
-propertyDefinitions =
-   {
-   /*
-       postProcessorDocs: {
-           group: "postInfo",
-           title: "Copy and paste linke to docs",
-           description: "Link to docs",
-           type: "string",
-       },
-   */
+groupDefinitions = {
+    //postInfo: {title: "OpenBuilds Post Documentation: https://docs.openbuilds.com/doku.php", description: "", order: 0},
+    spindle: {title: "Spindle", description: "Spindle options", order: 1},
+    safety: {title: "Safety", description: "Safety options", order: 2},
+    toolChange: {title: "Tool Changes", description: "Tool change options", order: 3},
+    startEndPos: {title: "Job Start Z and Job End X,Y,Z Coordinates", description: "Set the spindle start and end position", order: 4},
+    arcs: {title: "Arcs", description: "Arc options", order: 5},
+    laserPlasma: {title: "Laser / Plasma", description: "Laser / Plasma options", order: 6},
+    machine: {title: "Machine", description: "Machine options", order: 7}
+};
+propertyDefinitions = {
+/*
+    postProcessorDocs: {
+        group: "postInfo",
+        title: "Copy and paste linke to docs",
+        description: "Link to docs",
+        type: "string",
+    },
+*/
    routerType:  {
       group: "spindle",
       title: "SPINDLE Router type",
       description: "Select the type of spindle you have.",
       type: "enum",
-      values: [
-         {title:"Other", id:"other"},
-         {title: "Router11", id: "Router11"},
-         {title: "Makita RT0701", id: "Makita"},
-         {title: "Dewalt 611", id: "Dewalt"}
+      values:[
+        {title:"Other", id:"other"},
+        {title:"Router11", id:"Router11"},
+        {title:"Makita RT0701", id:"Makita"},
+        {title:"Dewalt 611", id:"Dewalt"}
       ]
-      },
+   },
    spindleTwoDirections:  {
       group: "spindle",
       title: "SPINDLE can rotate clockwise and counterclockwise?",
       description:  "Yes : spindle can rotate clockwise and counterclockwise, will send M3 and M4. No : spindle can only go clockwise, will only send M3",
       type: "boolean",
-      },
-   spindleOnOffDelay:  {
+    },
+    spindleOnOffDelay:  {
       group: "spindle",
       title: "SPINDLE on/off delay",
       description: "Time (in seconds) the spindle needs to get up to speed or stop, also used for plasma pierce delay",
       type: "number",
-      },
-   hasCoolant:  {
+    },
+    hasCoolant:  {
       group: "spindle",
       title: "SPINDLE Has coolant?",
       description: "Yes: machine uses the coolant output, M8 M9 will be sent. No : coolant output not connected, so no M8 M9 will be sent",
       type: "boolean",
-      },
-   checkFeed:  {
+    },
+    checkFeed:  {
       group: "safety",
       title: "SAFETY: Check tool feedrate",
       description: "Feedrate to be used for the tool length check, always millimeters.",
       type: "spatial",
-      },
-   checkZ:  {
+    },
+    checkZ:  {
       group: "safety",
       title: "SAFETY: Check tool Z length?",
       description: "Insert a safe move and program pause M0 to check for tool length, tool will lower to clearanceHeight set in the Heights tab.",
       type: "boolean",
-      },
+    },
 
    generateMultiple: {
       group: "toolChange",
-      title: "TOOL: Generate muliple files for tool changes?",
+      title:"TOOL: Generate muliple files for tool changes?",
       description: "Generate multiple files. One for each tool change.",
-      type: "boolean",
-      },
+      type:"boolean",
+    },
 
    gotoMCSatend: {
       group: "startEndPos",
-      title: "EndPos: Use Machine Coordinates (G53) at end of job?",
+      title:"EndPos: Use Machine Coordinates (G53) at end of job?",
       description: "Yes will do G53 G0 x{machinehomeX} y(machinehomeY) (Machine Coordinates), No will do G0 x(machinehomeX) y(machinehomeY) (Work Coordinates) at end of program",
-      type: "boolean",
-      },
+      type:"boolean",
+   },
    machineHomeX: {
       group: "startEndPos",
-      title: "EndPos: End of job X position (MM).",
+      title:"EndPos: End of job X position (MM).",
       description: "(G53 or G54) X position to move to in Millimeters",
-      type: "spatial",
-      },
+      type:"spatial",
+   },
    machineHomeY: {
       group: "startEndPos",
-      title: "EndPos: End of job Y position (MM).",
+      title:"EndPos: End of job Y position (MM).",
       description: "(G53 or G54) Y position to move to in Millimeters.",
-      type: "spatial",
-      },
+      type:"spatial",
+   },
    machineHomeZ: {
       group: "startEndPos",
-      title: "startEndPos: START and End of job Z position (MCS Only) (MM)",
+      title:"startEndPos: START and End of job Z position (MCS Only) (MM)",
       description: "G53 Z position to move to in Millimeters, normally negative.  Moves to this distance below Z home.",
-      type: "spatial",
-      },
+      type:"spatial",
+   },
 
    linearizeSmallArcs: {
       group: "arcs",
-      title: "ARCS: Linearize Small Arcs",
+      title:"ARCS: Linearize Small Arcs",
       description: "Arcs with radius < toolRadius can have mismatched radii, set this to Yes to linearize them. This solves G2/G3 radius mismatch errors.",
-      type: "boolean",
-      },
+      type:"boolean",
+   },
 
-   PowerVaporise: {title: "LASER: Power for Vaporizing", description: "Just enough Power to VAPORIZE plastic coating, in percent.", group: "laserPlasma", type: "integer"},
-   PowerThrough:  {title: "LASER: Power for Through Cutting", description: "Normal Through cutting power, in percent.", group: "laserPlasma", type: "integer"},
-   PowerEtch:     {title: "LASER: Power for Etching", description: "Just enough power to Etch the surface, in percent.", group: "laserPlasma", type: "integer"},
-   UseZ:          {title: "LASER: Use Z motions at start and end.", description: "Use True if you have a laser on a router with Z motion, or a PLASMA cutter.", group: "laserPlasma", type: "boolean"},
-   UsePierce:     {title: "LASER: Use pierce delays with M3 motion when cutting.", description: "True will use M3 commands and pierce delays, else use M4 with no delays.", group: "laserPlasma", type: "boolean"},
-   plasma_usetouchoff:  {title: "PLASMA: Use Z touchoff probe routine", description: "Set to true if have a touchoff probe for Plasma.", group: "laserPlasma", type: "boolean"},
-   plasma_touchoffOffset: {title: "PLASMA: Plasma touch probe offset", description: "Offset in Z at which the probe triggers, always Millimeters, always positive.", group: "laserPlasma", type: "spatial"},
-   plasma_pierceHeightoverride: {title: "PLASMA: Override the pierce height", description: "Set to true if want to always use the pierce height Z value.", group: "laserPlasma", type: "boolean"},
-   plasma_pierceHeightValue : {title: "PLASMA: Override the pierce height Z value", description: "Offset in Z for the plasma pierce height, always positive.", group: "laserPlasma", type: "spatial"},
+   PowerVaporise: {title:"LASER: Power for Vaporizing", description:"Just enough Power to VAPORIZE plastic coating, in percent.", group:"laserPlasma", type:"integer"},
+   PowerThrough:  {title:"LASER: Power for Through Cutting", description:"Normal Through cutting power, in percent.", group:"laserPlasma", type:"integer"},
+   PowerEtch:     {title:"LASER: Power for Etching", description:"Just enough power to Etch the surface, in percent.", group:"laserPlasma", type:"integer"},
+   UseZ:          {title:"LASER: Use Z motions at start and end.", description:"Use True if you have a laser on a router with Z motion, or a PLASMA cutter.", group:"laserPlasma", type:"boolean"},
+   UsePierce:     {title:"LASER: Use pierce delays with M3 motion when cutting.", description:"True will use M3 commands and pierce delays, else use M4 with no delays.", group:"laserPlasma", type:"boolean"},
+   plasma_usetouchoff:  {title:"PLASMA: Use Z touchoff probe routine", description:"Set to true if have a touchoff probe for Plasma.", group:"laserPlasma", type:"boolean"},
+   plasma_touchoffOffset:{title:"PLASMA: Plasma touch probe offset", description:"Offset in Z at which the probe triggers, always Millimeters, always positive.", group:"laserPlasma", type:"spatial"},
 
    machineVendor: {
       group: "machine",
-      title: "Machine Vendor",
+      title:"Machine Vendor",
       description: "Machine vendor defined here will be displayed in header if machine config not set.",
-      type: "string",
-      },
+      type:"string",
+   },
    modelMachine: {
       group: "machine",
-      title: "Machine Model",
+      title:"Machine Model",
       description: "Machine model defined here will be displayed in header if machine config not set.",
-      type: "string",
-      },
+      type:"string",
+   },
    machineControl: {
       group: "machine",
-      title: "Machine Control",
+      title:"Machine Control",
       description: "Machine control defined here will be displayed in header if machine config not set.",
-      type: "string",
-      }
-   };
+      type:"string",
+    }
+};
 
 // USER ADJUSTMENTS FOR PLASMA
 plasma_probedistance = 30;   // distance to probe down in Z, always in millimeters
 plasma_proberate = 100;      // feedrate for probing, in mm/minute
 // END OF USER ADJUSTMENTS
 
-
+var debug = false;
 // creation of all kinds of G-code formats - controls the amount of decimals used in the generated G-Code
-var gFormat = createFormat({prefix: "G", decimals: 0});
-var mFormat = createFormat({prefix: "M", decimals: 0});
+var gFormat = createFormat({prefix:"G", decimals:0});
+var mFormat = createFormat({prefix:"M", decimals:0});
 
-var xyzFormat = createFormat({decimals: (unit == MM ? 3 : 4)});
-var abcFormat = createFormat({decimals: 3, forceDecimal: true, scale: DEG});
-var arcFormat = createFormat({decimals: (unit == MM ? 3 : 4)});
-var feedFormat = createFormat({decimals: 0});
-var rpmFormat = createFormat({decimals: 0});
-var secFormat = createFormat({decimals: 1, forceDecimal: true}); // seconds
+var xyzFormat = createFormat({decimals:(unit == MM ? 3 : 4)});
+var abcFormat = createFormat({decimals:3, forceDecimal:true, scale:DEG});
+var arcFormat = createFormat({decimals:(unit == MM ? 3 : 4)});
+var feedFormat = createFormat({decimals:0});
+var rpmFormat = createFormat({decimals:0});
+var secFormat = createFormat({decimals:1, forceDecimal:true}); // seconds
 //var taperFormat = createFormat({decimals:1, scale:DEG});
 
-var xOutput = createVariable({prefix: "X", force: false}, xyzFormat);
-var yOutput = createVariable({prefix: "Y", force: false}, xyzFormat);
-var zOutput = createVariable({prefix: "Z", force: false}, xyzFormat); // dont need Z every time
-var feedOutput = createVariable({prefix: "F"}, feedFormat);
-var sOutput = createVariable({prefix: "S", force: false}, rpmFormat);
-var mOutput = createVariable({force: false}, mFormat); // only use for M3/4/5
+var xOutput = createVariable({prefix:"X", force:false}, xyzFormat);
+var yOutput = createVariable({prefix:"Y", force:false}, xyzFormat);
+var zOutput = createVariable({prefix:"Z", force:false}, xyzFormat); // dont need Z every time
+var feedOutput = createVariable({prefix:"F"}, feedFormat);
+var sOutput = createVariable({prefix:"S", force:false}, rpmFormat);
+var mOutput = createVariable({force:false}, mFormat); // only use for M3/4/5
 
 // for arcs
-var iOutput = createReferenceVariable({prefix: "I", force: true}, arcFormat);
-var jOutput = createReferenceVariable({prefix: "J", force: true}, arcFormat);
-var kOutput = createReferenceVariable({prefix: "K", force: true}, arcFormat);
+var iOutput = createReferenceVariable({prefix:"I", force:true}, arcFormat);
+var jOutput = createReferenceVariable({prefix:"J", force:true}, arcFormat);
+var kOutput = createReferenceVariable({prefix:"K", force:true}, arcFormat);
 
 var gMotionModal = createModal({}, gFormat);                                  // modal group 1 // G0-G3, ...
-var gPlaneModal = createModal({onchange: function ()
-   {
-   gMotionModal.reset();
-   }
-                              }, gFormat); // modal group 2 // G17-19
+var gPlaneModal = createModal({onchange:function () {gMotionModal.reset();}}, gFormat); // modal group 2 // G17-19
 var gAbsIncModal = createModal({}, gFormat);                                  // modal group 3 // G90-91
 var gFeedModeModal = createModal({}, gFormat);                                // modal group 5 // G93-94
 var gUnitModal = createModal({}, gFormat);                                    // modal group 6 // G20-21
@@ -290,8 +272,8 @@ var gWCSOutput = createModal({}, gFormat);                                    //
 var sequenceNumber = 1;        //used for multiple file naming
 var multipleToolError = false; //used for alerting during single file generation with multiple tools
 var filesToGenerate = 1;       //used to figure out how many files will be generated so we can diplay in header
-var minimumFeedRate = toPreciseUnit(45, MM); // GRBL lower limit in mm/minute
-var fileIndexFormat = createFormat({width: 2, zeropad: true, decimals: 0});
+var minimumFeedRate = toPreciseUnit(45,MM); // GRBL lower limit in mm/minute
+var fileIndexFormat = createFormat({width:2, zeropad: true, decimals:0});
 var isNewfile = false;  // set true when a new file has just been started
 
 var isLaser = false;    // set true for laser/water/
@@ -309,17 +291,16 @@ var leadinRate = 314;   // set by onParameter: the lead-in feedrate,plasma
 var cuttingMode = 'none'; // set by onParameter for laser/plasma
 var linmove = 1;        // linear move mode
 var toolRadius;         // for arc linearization
-var plasma_pierceHeight = 3.14; // set by onParameter from Linking|PierceClearance
+var plasma_pierceHeight = 1; // set by onParameter from Linking|PierceClearance
 var coolantIsOn = 0;    // set when coolant is used to we can do intelligent turn off
 var currentworkOffset = 54; // the current WCS in use, so we can retract Z between sections if needed
-var clnt = '';          // coolant code to add to spindle line
+
 
 function toTitleCase(str)
    {
    // function to reformat a string to 'title case'
    return str.replace( /\w\S*/g, function(txt)
       {
-      // /\w\S*/g    keep that format, astyle will put spaces in it
       return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
       });
    }
@@ -336,16 +317,15 @@ function rpm2dial(rpm, op)
       {
       var speeds = [0, 16000, 18200, 20400, 22600, 24800, 27000];
       }
+   else if (properties.routerType == "Router11")
+      {
+      var speeds = [0, 10000, 14000, 18000, 23000, 27000, 32000];
+      }
    else
-      if (properties.routerType == "Router11")
-         {
-         var speeds = [0, 10000, 14000, 18000, 23000, 27000, 32000];
-         }
-      else
-         {
-         // this is Makita R0701
-         var speeds = [0, 10000, 12000, 17000, 22000, 27000, 30000];
-         }
+      {
+      // this is Makita R0701
+      var speeds = [0, 10000, 12000, 17000, 22000, 27000, 30000];
+      }
    if (rpm < speeds[1])
       {
       alert("Warning", rpm + " rpm is below minimum spindle RPM of " + speeds[1] + " rpm in the " + op + " operation.");
@@ -545,7 +525,8 @@ function writeHeader(secID)
       //writeComment("  " +  FileSystem.getFilename(getOutputPath()));
       for (var i = 0; i < filesToGenerate; ++i)
          {
-         filename = makeFileName(i + 1);
+         filenamePath = FileSystem.replaceExtension(getOutputPath(), fileIndexFormat.format(i + 1) + "of" + filesToGenerate + "." + extension);
+         filename = FileSystem.getFilename(filenamePath);
          writeComment("  " + filename);
          }
       writeln("");
@@ -599,11 +580,11 @@ function writeHeader(secID)
          writeComment("  Tool #" + tool.number + ": " + toTitleCase(getToolTypeName(tool.type)) + " " + tool.numberOfFlutes + " Flutes, Diam = " + xyzFormat.format(tool.diameter) + unitstr + ", Len = " + tool.fluteLength.toFixed(2) + unitstr);
          if (properties.routerType != "other")
             {
-            writeComment("  Spindle : RPM = " + round(rpm, 0) + ", set router dial to " + rpm2dial(rpm, op));
+            writeComment("  Spindle : RPM = " + round(rpm,0) + ", set router dial to " + rpm2dial(rpm, op));
             }
          else
             {
-            writeComment("  Spindle : RPM = " + round(rpm, 0));
+            writeComment("  Spindle : RPM = " + round(rpm,0));
             }
          }
       checkMinFeedrate(section, op);
@@ -617,11 +598,10 @@ function writeHeader(secID)
          {
          machineTimeText = machineTimeText + machineTimeHours + " hours " + machineTimeMinutes + " min ";
          }
-      else
-         if (machineTimeMinutes > 0)
-            {
-            machineTimeText = machineTimeText + machineTimeMinutes + " min ";
-            }
+      else if (machineTimeMinutes > 0)
+         {
+         machineTimeText = machineTimeText + machineTimeMinutes + " min ";
+         }
       machineTimeText = machineTimeText + machineTimeSeconds + " sec";
       writeComment(machineTimeText);
 
@@ -656,16 +636,11 @@ function writeHeader(secID)
       }
    //writeComment("Header end");
    writeln("");
-   if (debugMode)
-      {
-      writeComment("debugMode is true");
-      writeln("");
-      }
    }
 
 function onOpen()
    {
-   if (debugMode) writeComment("onOpen");
+   if (debug) writeComment("onOpen");
    // Number of checks capturing fatal errors
    // 2. is RadiusCompensation not set incorrectly ?
    onRadiusCompensation();
@@ -694,11 +669,13 @@ function onOpen()
                   abcFormat.areDifferent(tooli.taperAngle, toolj.taperAngle) ||
                   (tooli.numberOfFlutes != toolj.numberOfFlutes))
                {
-               error( subst(
-                         localize("Using the same tool number for different cutter geometry for operation '%1' and '%2'."),
-                         sectioni.hasParameter("operation-comment") ? sectioni.getParameter("operation-comment") : ("#" + (i + 1)),
-                         sectionj.hasParameter("operation-comment") ? sectionj.getParameter("operation-comment") : ("#" + (j + 1))
-                      ) );
+               error(
+                  subst(
+                     localize("Using the same tool number for different cutter geometry for operation '%1' and '%2'."),
+                     sectioni.hasParameter("operation-comment") ? sectioni.getParameter("operation-comment") : ("#" + (i + 1)),
+                     sectionj.hasParameter("operation-comment") ? sectionj.getParameter("operation-comment") : ("#" + (j + 1))
+                  )
+               );
                return;
                }
             }
@@ -775,7 +752,7 @@ function calcPower(perc)
 // go to initial position and optionally output the height check code before spindle turns on
 function gotoInitial(checkit)
    {
-   if (debugMode) writeComment("gotoInitial start");
+   if (debug) writeComment("gotoInitial start");
    var sectionId = getCurrentSectionId();       // what is the number of this operation (starts from 0)
    var section = getSection(sectionId);         // what is the section-object for this operation
    var maxfeedrate = section.getMaximumFeedrate();
@@ -795,12 +772,12 @@ function gotoInitial(checkit)
          {
          // do a Peter Stanton style Z seek and stop for a height check
          z = zOutput.format(clearanceHeight);
-         f = feedOutput.format(toPreciseUnit(properties.checkFeed, MM));
+         f = feedOutput.format(toPreciseUnit(properties.checkFeed,MM));
          writeln("(Tool Height check https://youtu.be/WMsO24IqRKU?t=1059)");
          writeBlock(gMotionModal.format(1), z, f );
          writeBlock(mOutput.format(0));
          }
-   if (debugMode) writeComment("gotoInitial end");
+   if (debug) writeComment("gotoInitial end");
    }
 
 // write a G53 Z retract
@@ -821,6 +798,7 @@ function onSection()
    var section = getSection(sectionId);         // what is the section-object for this operation
    var tool = section.getTool();
    var maxfeedrate = section.getMaximumFeedrate();
+   if (debug) writeComment("onSection " + sectionId);
    haveRapid = false; // drilling sections will have rapids even when other ops do not
 
    onRadiusCompensation(); // must check every section
@@ -848,20 +826,16 @@ function onSection()
    //(onParameter =operation:topHeight mode= from stock top)
    //(onParameter =operation:topHeight value= 0.8)
 
-   var splitHere = !isFirstSection() && properties.generateMultiple && (tool.number != getPreviousSection().getTool().number);
-
-   if (splitHere)
+   if (!isFirstSection() && properties.generateMultiple && (tool.number != getPreviousSection().getTool().number))
       {
       sequenceNumber ++;
       //var fileIndexFormat = createFormat({width:3, zeropad: true, decimals:0});
-      var path = makeFileName(sequenceNumber);
+      var path = FileSystem.replaceExtension(getOutputPath(), fileIndexFormat.format(sequenceNumber) + "of" + filesToGenerate + "." + extension);
       redirectToFile(path);
       forceAll();
       writeHeader(getCurrentSectionId());
       isNewfile = true;  // trigger a spindleondelay
       }
-
-   if (debugMode) writeComment("onSection " + sectionId);
    writeln(""); // put these here so they go in the new file
    //writeComment("Section : " + (sectionId + 1) + " haveRapid " + haveRapid);
 
@@ -872,7 +846,7 @@ function onSection()
       comment = comment + " : " + getParameter("operation-comment");
       }
    writeComment(comment);
-   if (debugMode)
+   if (debug)
       writeComment("retractHeight = " + retractHeight);
    // Write the WCS, ie. G54 or higher.. default to WCS1 / G54 if no or invalid WCS
    if (!isFirstSection() && (currentworkOffset !=  (53 + section.workOffset)) )
@@ -892,19 +866,6 @@ function onSection()
       currentworkOffset = 53 + section.workOffset;
       }
    writeBlock(gAbsIncModal.format(90));  // Set to absolute coordinates
-
-   // If the machine has coolant, write M8/M7 or M9 on spindle control line
-   if (properties.hasCoolant)
-      {
-      if (isLaser || isPlasma)
-         {
-         clnt = setCoolant(1) // always turn it on since plasma tool has no coolant option in fusion
-                writeComment('laser coolant ' + clnt)
-         }
-      else
-         clnt = setCoolant(tool.coolant); // use tool setting
-      }
-
 
    cutmode = -1;
    //writeComment("isMilling=" + isMilling() + "  isjet=" +isJet() + "  islaser=" + isLaser);
@@ -954,7 +915,7 @@ function onSection()
                writeBlock(mOutput.format(cutmode), sOutput.format(0), '; flash preventer'); // else you get a flash before the first g0 move
             else
                if (cuttingMode != 'cut')
-                  writeBlock(mOutput.format(cutmode), sOutput.format(power), clnt, '; section power');
+                  writeBlock(mOutput.format(cutmode), sOutput.format(power), '; section power');
             }
          break;
       case TOOL_PLASMA_CUTTER:
@@ -982,7 +943,7 @@ function onSection()
          {
          writeZretract();
          }
-      else
+      else 
          if (properties.generateMultiple && (tool.number != getPreviousSection().getTool().number))
             writeZretract();
 
@@ -990,39 +951,26 @@ function onSection()
 
       // folks might want coolant control here
       // Insert the Spindle start command
-      if (clnt)
-         {
-         // force S and M words if coolant command exists
-         sOutput.reset();
-         mOutput.reset();
-         }
       if (tool.clockwise)
          {
          s = sOutput.format(tool.spindleRPM);
-         var rpmChanged = false;
-         if (s)
-            {
-            rpmChanged = !mFormat.areDifferent(3, mOutput.getCurrent() );
-            mOutput.reset();  // always output M3 if speed changes - helps with resume
-            }
          m = mOutput.format(3);
-         writeBlock(m, s, clnt);
-         if (rpmChanged) // means a speed change, spindle was already on, delay half the time
+         writeBlock(s, m);
+         if (s && !m) // means a speed change, spindle was already on, delay half the time
             onDwell(properties.spindleOnOffDelay / 2);
          }
+      else if (properties.spindleTwoDirections)
+         {
+         s = sOutput.format(tool.spindleRPM);
+         m = mOutput.format(4);
+         writeBlock(s, m);
+         }
       else
-         if (properties.spindleTwoDirections)
-            {
-            s = sOutput.format(tool.spindleRPM);
-            m = mOutput.format(4);
-            writeBlock(s, m, clnt);
-            }
-         else
-            {
-            alert("Error", "Counter-clockwise Spindle Operation found, but your spindle does not support this");
-            error("Fatal Error in Operation " + (sectionId + 1) + ": Counter-clockwise Spindle Operation found, but your spindle does not support this");
-            return;
-            }
+         {
+         alert("Error", "Counter-clockwise Spindle Operation found, but your spindle does not support this");
+         error("Fatal Error in Operation " + (sectionId + 1) + ": Counter-clockwise Spindle Operation found, but your spindle does not support this");
+         return;
+         }
       // spindle on delay if needed
       if (m && (isFirstSection() || isNewfile))
          onDwell(properties.spindleOnOffDelay);
@@ -1051,6 +999,16 @@ function onSection()
 
    forceAny();
 
+
+   // If the machine has coolant, write M8/M7 or M9
+   if (properties.hasCoolant)
+      {
+      if (isLaser || isPlasma)
+         setCoolant(1) // always turn it on since plasma tool has no coolant option in fusion
+         else
+            setCoolant(tool.coolant); // use tool setting
+      }
+
    if (isLaser && properties.UseZ)
       writeBlock(gMotionModal.format(0), zOutput.format(0));
    isNewfile = false;
@@ -1059,7 +1017,7 @@ function onSection()
 
 function onDwell(seconds)
    {
-   if (seconds > 0.0)
+   if (seconds > 0.0) 
       writeBlock(gFormat.format(4), "P" + secFormat.format(seconds));
    }
 
@@ -1084,7 +1042,7 @@ function onRadiusCompensation()
 function onRapid(_x, _y, _z)
    {
    haveRapid = true;
-   if (debugMode) writeComment("onRapid");
+   if (debug) writeComment("onRapid");
    if (!isLaser && !isPlasma)
       {
       var x = xOutput.format(_x);
@@ -1110,20 +1068,19 @@ function onRapid(_x, _y, _z)
          }
       if (isPlasma && properties.UseZ && (xyzFormat.format(_z) == xyzFormat.format(topHeight)) )
          {
-         if (debugMode) writeComment("onRapid skipping Z motion");
+         if (debug) writeComment("onRapid skipping Z motion");
          if (x || y)
             writeBlock(gMotionModal.format(0), x, y);
          zOutput.reset();   // force it on next command
          }
-      else
-         if (x || y || z)
-            writeBlock(gMotionModal.format(0), x, y, z);
+      else if (x || y || z)
+         writeBlock(gMotionModal.format(0), x, y, z);
       }
    }
 
 function onLinear(_x, _y, _z, feed)
    {
-   //if (debugMode) writeComment("onLinear " + haveRapid);
+   //if (debug) writeComment("onLinear " + haveRapid);
    if (powerOn || haveRapid)   // do not reset if power is off - for laser G0 moves
       {
       xOutput.reset();
@@ -1145,22 +1102,21 @@ function onLinear(_x, _y, _z, feed)
                linmove = 1;
             else
                linmove = 0;
-            if (debugMode && (linmove == 0)) writeComment("NOrapid");
+            if (debug && (linmove == 0)) writeComment("NOrapid");
             }
          writeBlock(gMotionModal.format(linmove), x, y, z, f);
          }
-      else
-         if (f)
+      else if (f)
+         {
+         if (getNextRecord().isMotion())
             {
-            if (getNextRecord().isMotion())
-               {
-               feedOutput.reset(); // force feed on next line
-               }
-            else
-               {
-               writeBlock(gMotionModal.format(1), f);
-               }
+            feedOutput.reset(); // force feed on next line
             }
+         else
+            {
+            writeBlock(gMotionModal.format(1), f);
+            }
+         }
       }
    else
       {
@@ -1202,259 +1158,64 @@ function onLinear5D(_x, _y, _z, _a, _b, _c, feed)
    error("Tool-Rotation detected but GRBL only supports 3 Axis");
    }
 
-// this code was generated with the help of ChatGPT AI
-// calculate the centers for the 2 circles passing through both points at the given radius
-// if error then returns -9.9375 for all coordinates
-// define points as var point1 = { x: 0, y: 0 };
-// returns an array of 2 of those things
-function calculateCircleCenters(point1, point2, radius)
-   {
-   // Calculate the distance between the points
-   var distance = Math.sqrt(     Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2)   );
-   if (distance > (radius * 2))
-      {
-      //-9.9375 is perfectly stored by doubles and singles and will pass an equality test
-      center1X = center1Y = center2X = center2Y = -9.9375;
-      }
-   else
-      {
-      // Calculate the midpoint between the points
-      var midpointX = (point1.x + point2.x) / 2;
-      var midpointY = (point1.y + point2.y) / 2;
-
-      // Calculate the angle between the line connecting the points and the x-axis
-      var angle = Math.atan2(point2.y - point1.y, point2.x - point1.x);
-
-      // Calculate the distance from the midpoint to the center of each circle
-      var halfChordLength = Math.sqrt(Math.pow(radius, 2) - Math.pow(distance / 2, 2));
-
-      // Calculate the centers of the circles
-      var center1X = midpointX + halfChordLength * Math.cos(angle + Math.PI / 2);
-      var center1Y = midpointY + halfChordLength * Math.sin(angle + Math.PI / 2);
-
-      var center2X = midpointX + halfChordLength * Math.cos(angle - Math.PI / 2);
-      var center2Y = midpointY + halfChordLength * Math.sin(angle - Math.PI / 2);
-      }
-
-   // Return the centers of the circles as an array of objects
-   return [
-      { x: center1X, y: center1Y },
-      { x: center2X, y: center2Y }   ];
-   }
-
-// given the 2 points and existing center, find a new, more accurate center
-// only works in x,y
-// point parameters are Vectors
-// returns a Vector point with the revised center values in x,y, ignore Z
-function newCenter(p1, p2, oldcenter, radius)
-   {
-   // inputs are vectors, convert
-   var point1 = { x: p1.x, y: p1.y };
-   var point2 = { x: p2.x, y: p2.y };
-
-   var newcenters = calculateCircleCenters(point1, point2, radius);
-   if ((newcenters[0].x == newcenters[1].x) && (newcenters[0].y == -9.9375))
-      {
-      // error in calculation, distance between points > diameter
-      return oldcenter;   
-      }
-   // now find the new center that is closest to the old center
-   //writeComment("nc1 " + newcenters[0].x + " " + newcenters[0].y);
-   nc1 = new Vector(newcenters[0].x, newcenters[0].y, 0); // note Z is not valid
-   //writeComment("nc2 " + newcenters[1].x + " " + newcenters[1].y);
-   nc2 = new Vector(newcenters[1].x, newcenters[1].y, 0);
-   d1 = Vector.diff(oldcenter, nc1).length;
-   d2 = Vector.diff(oldcenter, nc2).length;
-   if (d1 < d2)
-      return nc1;
-   else
-      return nc2;
-   }
-
-/*
-   helper for on Circular - calculates a new center for arcs with differing radii
-   returns the revised center vector
-*/   
-function ReCenter(start, end, center, radius, cp)
-   {
-      var r1,r2,diff,pdiff;
-   
-   switch (cp)
-      {
-      case PLANE_XY:
-         writeComment('recenter XY');
-         var nCenter = newCenter(start, end, center,  radius );
-         // writeComment("old center " + center.x + " , " + center.y);
-         // writeComment("new center " + nCenter.x + " , " + nCenter.y);
-         center.x = nCenter.x;
-         center.y = nCenter.y;
-         center.z = (start.z + end.z) / 2.0;
-
-         r1 = Vector.diff(start, center).length;
-         r2 = Vector.diff(end, center).length;
-         if (r1 != r2)
-            {
-            diff = r1 - r2;
-            pdiff = Math.abs(diff / r1 * 100);
-            if (pdiff  > 0.01)
-               {
-               if (debugMode) writeComment("R1 " + r1 + " r2 " + r2 + " d " + (r1 - r2) + " pdoff " + pdiff );
-               }
-            }
-         break;
-      case PLANE_ZX:
-         writeComment('recenter ZX');
-         // generate fake x,y vectors
-         var st = new Vector( start.x, start.z, 0);
-         var ed = new Vector(end.x, end.z, 0)
-         var ct = new Vector(center.x, center.z, 0);
-         var nCenter = newCenter( st, ed, ct,  radius);
-         // translate fake x,y values
-         center.x = nCenter.x;
-         center.z = nCenter.y;
-         r1 = Vector.diff(start, center).length;
-         r2 = Vector.diff(end, center).length;
-         if (r1 != r2)
-            {
-            diff = r1 - r2;
-            pdiff = Math.abs(diff / r1 * 100);
-            if (pdiff  > 0.01)
-               {
-               if (debugMode) writeComment("ZX R1 " + r1 + " r2 " + r2 + " d " + (r1 - r2) + " pdoff " + pdiff );
-               }
-            }
-         break;
-      case PLANE_YZ:
-         writeComment('recenter YZ');
-         var st = new Vector(start.z, start.y, 0);
-         var ed = new Vector(end.z, end.y, 0)
-         var ct = new Vector(center.z, center.y, 0);
-         var nCenter = newCenter(st, ed, ct,  radius);
-         center.y = nCenter.y;
-         center.z = nCenter.x;
-         r1 = Vector.diff(start, center).length;
-         r2 = Vector.diff(end, center).length;
-         if (r1 != r2)
-            {
-            diff = r1 - r2;
-            pdiff = Math.abs(diff / r1 * 100);
-            if (pdiff  > 0.01)
-               {
-               if (debugMode) writeComment("YZ R1 " + r1 + " r2 " + r2 + " d " + (r1 - r2) + " pdoff " + pdiff );
-               }
-            }
-         break;
-      }
-   return center;
-   }
-
 function onCircular(clockwise, cx, cy, cz, x, y, z, feed)
    {
    var start = getCurrentPosition();
-   var center = new Vector(cx, cy, cz);
-   var end = new Vector(x, y, z);
-   var cp = getCircularPlane();
-   //writeComment("cp " + cp);
+   xOutput.reset(); // always have X and Y, Z will output of it changed
+   yOutput.reset();
 
+   // arcs smaller than bitradius always have significant radius errors, so get radius and linearize them (because we cannot change minimumCircularRadius here)
+   // note that larger arcs still have radius errors, but they are a much smaller percentage of the radius
+   var rad = Math.sqrt(Math.pow(start.x - cx,2) + Math.pow(start.y - cy, 2));
+   if (properties.linearizeSmallArcs &&  (rad < toolRadius))
+      {
+      if (debug) writeComment("linearizing arc radius " + round(rad,4) + " toolRadius " + round(toolRadius,3));
+      linearize(tolerance);
+      if (debug) writeComment("done");
+      return;
+      }
    if (isFullCircle())
       {
       writeComment("full circle");
       linearize(tolerance);
       return;
       }
-
-   // first fix the center 'height'
-   // for an XY plane, fix Z to be between start.z and end.z
-   switch (cp)
-      {
-      case PLANE_XY:
-         center.z = (start.z + end.z) / 2.0; // doing this fixes most arc radius lengths
-         break;
-      case PLANE_YZ:
-         // fix X
-         center.x = (start.x + end.x) / 2.0;
-         break;
-      case PLANE_ZX:
-         // fix Y
-         center.y = (start.y + end.y) / 2.0;
-         break;
-      default:
-         writeComment("no plane");
-      }
-   // check for differing radii
-   var r1 = Vector.diff(start, center).length;
-   var r2 = Vector.diff(end, center).length;
-   // if linearizing and this is small, don't bother to recenter
-   if ( !(properties.linearizeSmallArcs &&  (r1 < toolRadius)) )
-      if (r1 != r2)
-         {
-         var diff = r1 - r2;
-         var pdiff = Math.abs(diff / r1 * 100);
-         // if percentage difference too great
-         if (pdiff > 0.01)
-            {
-            // adjust center to make radii equal
-            if (debugMode) writeComment("r1 " + r1 + " r2 " + r2 + " d " + (r1 - r2) + " pdoff " + pdiff );
-            center = ReCenter(start, end, center, (r1 + r2) /2, cp);
-            }
-         }
-
-   // arcs smaller than bitradius always have significant radius errors, 
-   // so get radius and linearize them (because we cannot change minimumCircularRadius here)
-   // note that larger arcs still have radius errors, but they are a much smaller percentage of the radius
-   // and GRBL won't care
-   var rad = Vector.diff(start,center).length;
-   if (properties.linearizeSmallArcs &&  (rad < toolRadius))
-      {
-      if (debugMode) writeComment("linearizing arc radius " + round(rad, 4) + " toolRadius " + round(toolRadius, 3));
-      linearize(tolerance);
-      if (debugMode) writeComment("done");
-      return;
-      }
-   // not small and not a full circle, output G2 or G3
-   if ((isLaser || isPlasma) && !powerOn)
-      {
-      if (debugMode) writeComment("arc linearize rapid");
-      linearize(tolerance * 10); // this is a rapid move so tolerance can be increased for faster motion and fewer lines of code
-      if (debugMode) writeComment("arc linearize rapid done");
-      }
    else
-      switch (getCircularPlane())
+      {
+      if ((isLaser || isPlasma) && !powerOn)
          {
-         case PLANE_XY:
-            xOutput.reset();  // must always have X and Y
-            yOutput.reset();
-            if (!isLaser && !isPlasma)
-               writeBlock(gPlaneModal.format(17), gMotionModal.format(clockwise ? 2 : 3), xOutput.format(x), yOutput.format(y), zOutput.format(z), iOutput.format(cx - start.x, 0), jOutput.format(cy - start.y, 0), feedOutput.format(feed));
-            else
-               {
-               zo = properties.UseZ ? zOutput.format(z) : "";
-               writeBlock(gPlaneModal.format(17), gMotionModal.format(clockwise ? 2 : 3), xOutput.format(x), yOutput.format(y), zo, iOutput.format(cx - start.x, 0), jOutput.format(cy - start.y, 0), feedOutput.format(feed));
-               }
-            break;
-         case PLANE_ZX:
-            if (!isLaser)
-               {
-               xOutput.reset(); // always have X and Z
-               zOutput.reset();
-               writeBlock(gPlaneModal.format(18), gMotionModal.format(clockwise ? 2 : 3), xOutput.format(x), yOutput.format(y), zOutput.format(z), iOutput.format(cx - start.x, 0), kOutput.format(cz - start.z, 0), feedOutput.format(feed));
-               }
-            else
+         if (debug) writeComment("arc linearize rapid");         
+         linearize(tolerance * 4); // this is a rapid move so tolerance can be increased for faster motion and fewer lines of code
+         if (debug) writeComment("arc linearize rapid done");         
+         }
+      else
+         switch (getCircularPlane())
+            {
+            case PLANE_XY:
+               if (!isLaser && !isPlasma)
+                  writeBlock(gPlaneModal.format(17), gMotionModal.format(clockwise ? 2 : 3), xOutput.format(x), yOutput.format(y), zOutput.format(z), iOutput.format(cx - start.x, 0), jOutput.format(cy - start.y, 0), feedOutput.format(feed));
+               else
+                  {
+                  zo = properties.UseZ ? zOutput.format(z) : "";
+                  writeBlock(gPlaneModal.format(17), gMotionModal.format(clockwise ? 2 : 3), xOutput.format(x), yOutput.format(y), zo, iOutput.format(cx - start.x, 0), jOutput.format(cy - start.y, 0), feedOutput.format(feed));
+                  }
+               break;
+            case PLANE_ZX:
+               if (!isLaser)
+                  writeBlock(gPlaneModal.format(18), gMotionModal.format(clockwise ? 2 : 3), xOutput.format(x), yOutput.format(y), zOutput.format(z), iOutput.format(cx - start.x, 0), kOutput.format(cz - start.z, 0), feedOutput.format(feed));
+               else
+                  linearize(tolerance);
+               break;
+            case PLANE_YZ:
+               if (!isLaser)
+                  writeBlock(gPlaneModal.format(19), gMotionModal.format(clockwise ? 2 : 3), xOutput.format(x), yOutput.format(y), zOutput.format(z), jOutput.format(cy - start.y, 0), kOutput.format(cz - start.z, 0), feedOutput.format(feed));
+               else
+                  linearize(tolerance);
+               break;
+            default:
                linearize(tolerance);
-            break;
-         case PLANE_YZ:
-            if (!isLaser)
-               {
-               yOutput.reset(); // always have Y and Z
-               zOutput.reset();
-               writeBlock(gPlaneModal.format(19), gMotionModal.format(clockwise ? 2 : 3), xOutput.format(x), yOutput.format(y), zOutput.format(z), jOutput.format(cy - start.y, 0), kOutput.format(cz - start.z, 0), feedOutput.format(feed));
-               }
-            else
-               linearize(tolerance);
-            break;
-         default:
-            linearize(tolerance);
-         } //switch plane
+            }
+      }
    }
 
 function onSectionEnd()
@@ -1487,7 +1248,7 @@ function onClose()
    writeBlock(mFormat.format(5));                              // Stop Spindle
    if (properties.hasCoolant)
       {
-      writeBlock( setCoolant(0) );                           // Stop Coolant
+      setCoolant(0);                           // Stop Coolant
       }
    //onDwell(properties.spindleOnOffDelay);                    // Wait for spindle to stop
    gMotionModal.reset();
@@ -1545,16 +1306,13 @@ function onTerminate()
       var outputPath = getOutputPath();
       var outputFolder = FileSystem.getFolderPath(getOutputPath());
       var programFilename = FileSystem.getFilename(outputPath);
-      var newname = makeFileName(1);
-      FileSystem.copyFile(outputPath, newname);
+      FileSystem.copyFile(outputPath, FileSystem.replaceExtension(outputPath, fileIndexFormat.format(1) + 'of' + filesToGenerate + '.' + extension));
       FileSystem.remove(outputPath);
       var file = new TextFile(outputFolder + "\\" + programFilename, true, "ansi");
-      file.writeln("The following gcode files were Created: ");
-      var fname;
+      file.writeln("The following gcode files were created: ");
       for (var i = 0; i < filesToGenerate; ++i)
          {
-         fname = makeFileName(i + 1);
-         file.writeln(fname);
+         file.writeln(programName + '.' + fileIndexFormat.format(i + 1) + 'of' + filesToGenerate + '.' + extension);
          }
       file.close();
       }
@@ -1562,7 +1320,7 @@ function onTerminate()
 
 function onCommand(command)
    {
-   if (debugMode) writeComment("onCommand " + command);
+   if (debug ) writeComment("onCommand " + command);
    switch (command)
       {
       case COMMAND_STOP: // - Program stop (M00)
@@ -1578,7 +1336,7 @@ function onCommand(command)
          writeBlock(mFormat.format(2));
          break;
       case COMMAND_POWER_OFF:
-         if (debugMode) writeComment("power off");
+         if (debug) writeComment("power off");
          if (!haveRapid)
             writeln("");
          powerOn = false;
@@ -1586,7 +1344,7 @@ function onCommand(command)
             writeBlock(mFormat.format(5));
          break;
       case COMMAND_POWER_ON:
-         if (debugMode) writeComment("power ON");
+         if (debug) writeComment("power ON");
          if (!haveRapid)
             writeln("");
          powerOn = true;
@@ -1597,59 +1355,59 @@ function onCommand(command)
                if (properties.plasma_usetouchoff && isPlasma)
                   {
                   writeln("");
-                  writeBlock( "G38.2", zOutput.format(toPreciseUnit(-plasma_probedistance, MM)), feedOutput.format(toPreciseUnit(plasma_proberate, MM)));
-                  if (debugMode) writeComment("touch offset "  + xyzFormat.format(properties.plasma_touchoffOffset) );
-                  writeBlock( gMotionModal.format(10), "L20", zOutput.format(toPreciseUnit(-properties.plasma_touchoffOffset, MM)) );
+                  writeBlock( "G38.2" , zOutput.format(toPreciseUnit(-plasma_probedistance,MM)), feedOutput.format(toPreciseUnit(plasma_proberate,MM)));
+                  if (debug) writeComment("touch offset "  + xyzFormat.format(properties.plasma_touchoffOffset) );
+                  writeBlock( gMotionModal.format(10), "L20" , zOutput.format(toPreciseUnit(-properties.plasma_touchoffOffset,MM)) );
                   feedOutput.reset();
                   }
                // move to pierce height
-               if (debugMode)
-                  writeBlock( gMotionModal.format(0), zOutput.format(plasma_pierceHeight), " ; pierce height" );
+               if (debug)
+                  writeBlock( gMotionModal.format(0), zOutput.format(plasma_pierceHeight) , " ; pierce height" );
                else
                   writeBlock( gMotionModal.format(0), zOutput.format(plasma_pierceHeight));
                }
-            if (isPlasma || (cuttingMode == 'cut') || (clnt))
-               writeBlock(mFormat.format(3), sOutput.format(power), clnt);
+            if (isPlasma || (cuttingMode == 'cut'))
+               writeBlock(mFormat.format(3), sOutput.format(power));
             }
          break;
-      default:
-         if (debugMode) writeComment("onCommand not handled " + command);
+      default:   
+         if (debug) writeComment("onCommand not handled " + command);
       }
    // for other commands see https://cam.autodesk.com/posts/reference/classPostProcessor.html#af3a71236d7fe350fd33bdc14b0c7a4c6
-   if (debugMode) writeComment("onCommand end");
+   if (debug) writeComment("onCommand end");
    }
 
 function onParameter(name, value)
    {
-   //onParameter('operation:keepToolDown', 0)
-   if (debugMode) writeComment("onParameter =" + name + "= " + value);   // (onParameter =operation:retractHeight value= :5)
-   name = name.replace(" ", "_"); // dratted indexOF cannot have spaces in it!
+      //onParameter('operation:keepToolDown', 0)
+   //if (debug) writeComment("onParameter =" + name + "= " + value);   // (onParameter =operation:retractHeight value= :5)
+   name = name.replace(" ","_");  // dratted indexOF cannot have spaces in it!
    if ( (name.indexOf("retractHeight_value") >= 0 ) )   // == "operation:retractHeight value")
       {
       retractHeight = value;
-      if (debugMode) writeComment("retractHeight = " + retractHeight);
+      if (debug) writeComment("retractHeight = "+retractHeight);
       }
    if (name.indexOf("operation:clearanceHeight_value") >= 0)
       {
       clearanceHeight = value;
-      if (debugMode) writeComment("clearanceHeight = " + clearanceHeight);
+      if (debug) writeComment("clearanceHeight = "+clearanceHeight);
       }
 
-   if (name.indexOf("movement:lead_in") != -1)
+   if (name.indexOf("movement:lead_in") !== -1)
       {
       leadinRate = value;
-      if (debugMode && isPlasma) writeComment("leadinRate set " + leadinRate);
+      if (debug && isPlasma) writeComment("leadinRate set " + leadinRate);
       }
 
    if (name.indexOf("operation:topHeight_value") >= 0)
       {
       topHeight = value;
-      if (debugMode && isPlasma) writeComment("topHeight set " + topHeight);
+      if (debug && isPlasma) writeComment("topHeight set " + topHeight);
       }
-   if (name.indexOf('operation:cuttingMode') >= 0)
+   if (name.indexOf('operation:cuttingMode') >= 0)   
       {
-      cuttingMode = value;
-      if (debugMode) writeComment("cuttingMode set " + cuttingMode);
+      cuttingMode = value;   
+      if (debug) writeComment("cuttingMode set " + cuttingMode);
       if (cuttingMode.indexOf('cut') >= 0) // simplify later logic, auto/low/medium/high are all 'cut'
          cuttingMode = 'cut';
       if (cuttingMode.indexOf('auto') >= 0)
@@ -1657,67 +1415,59 @@ function onParameter(name, value)
       }
    // (onParameter =operation:pierceClearance= 1.5)    for plasma
    if (name == 'operation:pierceClearance')
-      {
-      if (properties.plasma_pierceHeightoverride)
-         plasma_pierceHeight = properties.plasma_pierceHeightValue;
-      else
-         plasma_pierceHeight = value;
-      }
+      plasma_pierceHeight = value;
    if ((name == 'action') && (value == 'pierce'))
       {
-      if (debugMode) writeComment('action pierce');
+      if (debug) writeComment('action pierce');
       onDwell(properties.spindleOnOffDelay);
       if (properties.UseZ) // done a probe and/or pierce, now lower to cut height
          {
-         writeBlock( gMotionModal.format(1), zOutput.format(topHeight), feedOutput.format(leadinRate) );
+         writeBlock( gMotionModal.format(1) , zOutput.format(topHeight) , feedOutput.format(leadinRate) );
          gMotionModal.reset();
          }
-
+         
       }
    }
 
-function round(num, digits)
+function round(num,digits)
    {
-   return toFixedNumber(num, digits, 10)
+   return toFixedNumber(num,digits,10)
    }
 
 function toFixedNumber(num, digits, base)
    {
-   var pow = Math.pow(base || 10, digits); // cleverness found on web
-   return Math.round(num * pow) / pow;
+   var pow = Math.pow(base||10, digits);  // cleverness found on web
+   return Math.round(num*pow) / pow;
    }
 
 // set the coolant mode from the tool value
-// changed 2023 - returns a string rather than writing the block itself
 function setCoolant(coolval)
    {
-   var cresult = '';
-
-   if ( debugMode) writeComment("setCoolant " + coolval);
+   if ( debug) writeComment("setCoolant " + coolval);
    // 0 if off, 1 is flood, 2 is mist, 7 is both
    switch (coolval)
       {
       case 0:
          if (coolantIsOn != 0)
-            cresult = mFormat.format(9); // off
+            writeBlock(mFormat.format(9)); // off
          coolantIsOn = 0;
          break;
       case 1:
          if (coolantIsOn == 2)
-            cresult = mFormat.format(9); // turn mist off
-         cresult = cresult + mFormat.format(8); // flood
+            writeBlock(mFormat.format(9)); // turn mist off
+         writeBlock(mFormat.format(8)); // flood
          coolantIsOn = 1;
          break;
       case 2:
-         //writeComment("Mist coolant on pin A3. special GRBL compile for this.");
+         writeComment("Mist coolant on pin A3. special GRBL compile for this.");
          if (coolantIsOn == 1)
-            cresult = mFormat.format(9); // turn flood off
-         cresult += ' ' + mFormat.format(7); // mist
+            writeBlock(mFormat.format(9)); // turn flood off
+         writeBlock(mFormat.format(7)); // mist
          coolantIsOn = 2;
          break;
       case 7:  // flood and mist
-         cresult = mFormat.format(8) ; // flood
-         cresult += ' ' + mFormat.format(7); // mist
+         writeBlock(mFormat.format(8)); // flood
+         writeBlock(mFormat.format(7)); // mist
          coolantIsOn = 7;
          break;
       default:
@@ -1725,22 +1475,5 @@ function setCoolant(coolval)
          alert("Warning", "Coolant option not understood: " + coolval);
          coolantIsOn = 0;
       }
-   if ( debugMode) writeComment("setCoolant end " + cresult);
-   return cresult;
+   if ( debug) writeComment("setCoolant end");
    }
-
-/**
-   make a numbered filename
-   @param index the number of the file, from 1
-*/
-function makeFileName(index)
-   {
-   var fullname = getOutputPath();
-   debug(fullname);
-   fullname = fullname.replace(' ', '_');
-   var filenamePath = FileSystem.replaceExtension(fullname, fileIndexFormat.format(index) + "of" + filesToGenerate + "." + extension);
-   var filename = FileSystem.getFilename(filenamePath);
-   debug(filename);
-   return filenamePath;
-   }
-
