@@ -3,7 +3,9 @@ var permittedCommentChars = " ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwx
 
 function toTitleCase(str) {
    // function to reformat a string to 'title case'
-   return str.replace(/\w\S*/g, function (txt) {             // /\w\S*/g    keep that format, astyle will put spaces in it
+   return str.replace(/\w\S*/g, function (txt) {             
+      // /\w\S*/g    
+      // Keep that format, astyle will put spaces in it
       return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
    });
 }
@@ -19,10 +21,13 @@ legal = "Copyright Openbuilds 2023";
 
 debugMode = false;
 
-extension = "gcode";                            // file extension of the gcode file
-setCodePage("ascii");                           // character set of the gcode file
+// file extension of the gcode file
+extension = "gcode";
+// character set of the gcode file
+setCodePage("ascii");                           
 
-capabilities = CAPABILITY_MILLING | CAPABILITY_JET;      // intended for a CNC, so Milling, and waterjet/plasma/laser
+// intended for a CNC, so Milling, and waterjet/plasma/laser
+capabilities = CAPABILITY_MILLING | CAPABILITY_JET;
 tolerance = spatial(0.01, MM);
 minimumChordLength = spatial(0.25, MM);
 minimumCircularRadius = spatial(0.125, MM);
@@ -46,15 +51,23 @@ properties = {
    machineHomeY: -10,
    gotoMCSatend: false,          // true will do G53 G0 x{machinehomeX} y{machinehomeY}, false will do G0 x{machinehomeX} y{machinehomeY} at end of program
    PowerVaporise: 5,         // cutting power in percent, to vaporize plastic coatings
-   PowerThrough: 100,       // for through cutting
-   PowerEtch: 10,        // for etching the surface
-   UseZ: true,           // if true then Z will be moved to 0 at beginning and back to 'retract height' at end
-   UsePierce: true,      // if true && islaser && cutting use M3 and honor pierce delays, else use M4
+   // for through cutting
+   PowerThrough: 100,       
+   // for etching the surface
+   PowerEtch: 10,        
+   // if true then Z will be moved to 0 at beginning and back to 'retract height' at end
+   UseZ: true,           
+   // if true && islaser && cutting use M3 and honor pierce delays, else use M4
+   UsePierce: true,      
    //plasma stuff
-   plasma_usetouchoff: true,                        // use probe for touchoff if true
-   plasma_touchoffOffset: 5.0,                       // offset from trigger point to real Z0, used in G10 line
-   plasma_pierceHeightoverride: false,                // if true replace all pierce height settings with value below
-   plasma_pierceHeightValue: toPreciseUnit(10, MM),   // not forcing mm, user beware
+   // use probe for touchoff if true
+   plasma_usetouchoff: true,                        
+   // offset from trigger point to real Z0, used in G10 line
+   plasma_touchoffOffset: 5.0,                       
+   // if true replace all pierce height settings with value below
+   plasma_pierceHeightoverride: false,                
+   // not forcing mm, user beware
+   plasma_pierceHeightValue: toPreciseUnit(10, MM),   
 
    linearizeSmallArcs: true,     // arcs with radius < toolRadius have radius errors, linearize instead?
    machineVendor: "OpenBuilds",
